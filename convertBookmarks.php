@@ -6,6 +6,10 @@
 *
 *	(c) 2018 magicmulder <developer@muldermedia.de>
 *
+* 	Example call in cron:
+*
+*	php /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/convertBookmarks.php /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/bookmarks.html /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/dl-porn.sh
+*
 */
 
 
