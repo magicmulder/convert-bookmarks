@@ -1,12 +1,27 @@
 <?php
-#ini_set('max_execution_time', 300);
-#error_reporting(E_ALL);
-#ini_set('display_errors', 1);
+/**
+*	Chrome Bookmark Downloader 
+*
+*	v1.0
+*
+*	(c) 2018 magicmulder <developer@muldermedia.de>
+*
+*/
+
 
 $youtubeDL = 'youtube-dl -i --download-archive archive.txt --prefer-ffmpeg --merge-output-format mkv -v -o "/volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/';
 
-$handle = fopen('bookmarks.html', 'r');
-$handle2 = fopen('output.txt', 'a+');
+$bookmarkFile = 'bookmarks.html';
+$bookmarkScript = 'dl-porn.sh';
+if (isset($argv[1])) {
+	$bookmarkFile = $argv[1];
+}
+if (isset($argv[2])) {
+	$bookmarkScript = $argv[2];
+}
+
+$handle = fopen($bookmarkFile, 'r');
+$handle2 = fopen($bookmarkScript, 'w');
 $depth = 0;
 $count = 0;
 $offset = (isset($_REQUEST['offset'])?$_REQUEST['offset']:1);
@@ -14,6 +29,7 @@ $level[0] = '';
 $level[1] = '';
 $level[2] = '';
 $level[3] = '';
+#$line = '                 <DT><H3 ADD_DATE="1463170500" LAST_MODIFIED="1533323796">Yay</H3>';
 while (($line = fgets($handle)) !== false) {
 	$count++;
 #	if ($count > 20) break;
@@ -33,6 +49,8 @@ while (($line = fgets($handle)) !== false) {
 		$level[$currLevel+4] = '';
 		$level[$currLevel+5] = '';
 		$level[$currLevel+6] = '';
+#		echo  $currLevel. ": " . $label . "<br>";
+#fwrite($handle2, $currLevel. ": " . $label . chr(10).chr(13));
 	} else {
 		if ($count < $offset) continue;
 		preg_match_all($regExpUrl, $line, $match2);
@@ -49,10 +67,16 @@ while (($line = fgets($handle)) !== false) {
 			$generatedCall = $youtubeDL . $currPath . '/%(title)s [%(resolution)s] [%(id)s].%(ext)s" ' . $link;
 			fwrite($handle2, '#' . $count . chr(10));
 			fwrite($handle2, $generatedCall . chr(10));
-echo $generatedCall . "<br>";			
+#echo $generatedCall . "<br>";			
+#			$arrStructure[$level[0]][$level[1]][$level[2]][$level[3]][] = $link;
 		}
 	}	
 }
+print_r($arrStructure);
 fclose($handle);
 fclose($handle2);
+chmod($bookmarkScript, '0777');
+chown($bookmarkScript, 'kai2');
+chgrp($bookmarkScript, 'users');
+
                     
