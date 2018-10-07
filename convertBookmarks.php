@@ -2,21 +2,26 @@
 /**
 *	Chrome Bookmark Downloader 
 *
-*	v1.0.1
+*	v1.0.2
 *
 *	(c) 2018 magicmulder <developer@muldermedia.de>
 *
+* 	Call:
+*
+*	php convertBookmarks.php bookmarks.html dl-bookmarks.sh && dl-bookmarks.sh
+*
 * 	Example call in cron:
 *
-*	php /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/convertBookmarks.php /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/bookmarks.html /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/dl-porn.sh
+*	php /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/convertBookmarks.php /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/bookmarks.html /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/dl-bookmarks.sh && /volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/dl-bookmarks.sh
 *
 */
 
-
+$MAXDEPTH = 10;
 $youtubeDL = 'youtube-dl -i --download-archive archive.txt --prefer-ffmpeg --merge-output-format mkv -v -o "/volume1/AdorableIllusion/Pix/XXX_Bookmarked_Videos/';
+$youtubeDLFilename = '/%(title)s [%(resolution)s] [%(id)s].%(ext)s"';
 
 $bookmarkFile = 'bookmarks.html';
-$bookmarkScript = 'dl-porn.sh';
+$bookmarkScript = 'dl-bookmarks.sh';
 if (isset($argv[1])) {
 	$bookmarkFile = $argv[1];
 }
@@ -27,7 +32,7 @@ if (isset($argv[2])) {
 $handle = fopen($bookmarkFile, 'r');
 $handle2 = fopen($bookmarkScript, 'w');
 $count = 0;
-for ($i = 0; $i <= 10; $i++) {
+for ($i = 0; $i <= $MAXDEPTH; $i++) {
 	$level[$i] = '';
 }
 while (($line = fgets($handle)) !== false) {
@@ -41,7 +46,7 @@ while (($line = fgets($handle)) !== false) {
 		$label = str_replace('quot', '', $label);
 		$currLevel = (strlen($indent)-20)/4;
 		$level[$currLevel] = $label;
-		for ($i = 1; $i <= 10; $i++) {
+		for ($i = 1; $i <= $MAXDEPTH; $i++) {
 			$level[$currLevel+$i] = '';
 		}
 	} else {
@@ -50,14 +55,10 @@ while (($line = fgets($handle)) !== false) {
 			$count++;
 			$link = $match2[2][0];
 			$currPath = $level[0];
-			if ($level[1] != '') $currPath .= '/' . $level[1];
-			if ($level[2] != '') $currPath .= '/' . $level[2];
-			if ($level[3] != '') $currPath .= '/' . $level[3];
-			if ($level[4] != '') $currPath .= '/' . $level[4];
-			if ($level[5] != '') $currPath .= '/' . $level[5];
-			if ($level[6] != '') $currPath .= '/' . $level[6];
-			$fileName = $link;
-			$generatedCall = $youtubeDL . $currPath . '/%(title)s [%(resolution)s] [%(id)s].%(ext)s" ' . $link;
+			for ($i = 1; $i <= $MAXDEPTH; $i++) {
+				if ($level[$i] != '') $currPath .= '/' . $level[$i];
+			}
+			$generatedCall = $youtubeDL . $currPath . $youtubeDLFilename . ' ' . $link;
 			fwrite($handle2, '#' . $count . chr(10));
 			fwrite($handle2, $generatedCall . chr(10));
 		}
